@@ -14,6 +14,8 @@ interface ChatScreenProps {
   user?: SessionUser;
   onSendMessage?: (message: string) => void;
   onLogout?: () => void;
+  isConnected?: boolean;
+  onSelectConversation?: (conversation: Conversation) => void;
 }
 
 export default function ChatScreen({
@@ -22,27 +24,23 @@ export default function ChatScreen({
   user,
   onSendMessage,
   onLogout,
+  isConnected = false,
+  onSelectConversation,
 }: ChatScreenProps) {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(conversations[0] || null);
-  const [messageList, setMessageList] = useState<Message[]>(messages);
+
+  // Use passed messages instead of local state
+  const messageList = messages;
 
   const handleSendMessage = (message: string) => {
     if (!message.trim()) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: 'user',
-      content: message,
-      timestamp: new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-      type: 'text',
-    };
-
-    setMessageList([...messageList, newMessage]);
     onSendMessage?.(message);
+  };
+
+  const handleSelectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    onSelectConversation?.(conversation);
   };
 
   return (
@@ -51,9 +49,10 @@ export default function ChatScreen({
       <ChatSidebar
         conversations={conversations}
         selectedConversation={selectedConversation}
-        onSelectConversation={setSelectedConversation}
+        onSelectConversation={handleSelectConversation}
         user={user}
         onLogout={onLogout}
+        isConnected={isConnected}
       />
 
       {/* Main Chat Area */}

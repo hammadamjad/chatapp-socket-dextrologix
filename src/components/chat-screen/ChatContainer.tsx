@@ -34,7 +34,14 @@ export default function ChatContainer({ messages }: ChatWindowProps) {
               {message.type === 'text' && (
                 <p className='text-sm'>{message.content}</p>
               )}
-              <p className='mt-1 text-xs opacity-70'>{message.timestamp}</p>
+              <div className='mt-1 flex items-center justify-between'>
+                <p className='text-xs opacity-70'>{message.timestamp}</p>
+                {message.sender === 'user' && (
+                  <span className='text-xs opacity-70'>
+                    {message.read ? '✓✓' : '✓'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}

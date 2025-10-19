@@ -4,6 +4,7 @@ export interface Message {
   content: string;
   timestamp: string;
   type: 'text';
+  read?: boolean;
 }
 
 export interface ChatUser {
@@ -56,4 +57,39 @@ export interface AuthResponse {
   success: boolean;
   message: string;
   user?: User;
+}
+
+// Socket-related types
+export interface SocketUser {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  isOnline?: boolean;
+}
+
+export interface SocketMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  conversationId: string;
+  timestamp: string;
+  read?: boolean;
+}
+
+export interface SocketConversation {
+  _id: string;
+  participants: string[];
+  lastMessage: string;
+  lastMessageTime: string;
+  messageCount: number;
+}
+
+// Active user type (same as SocketUser but with different name for clarity)
+export interface ActiveUser {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
 }

@@ -14,6 +14,7 @@ interface ChatSidebarProps {
   onSelectConversation: (conversation: Conversation) => void;
   user?: SessionUser;
   onLogout?: () => void;
+  isConnected?: boolean;
 }
 
 export default function Sidebar({
@@ -22,13 +23,22 @@ export default function Sidebar({
   onSelectConversation,
   user,
   onLogout,
+  isConnected = false,
 }: ChatSidebarProps) {
   return (
     <div className='w-80 border-r border-border bg-card flex flex-col'>
       {/* Header */}
       <div className='border-b border-border p-4'>
         <div className='mb-4 flex items-center justify-between'>
-          <h1 className='text-2xl font-bold text-foreground'>Chats</h1>
+          <div className='flex items-center gap-2'>
+            <h1 className='text-2xl font-bold text-foreground'>Active Users</h1>
+            <div
+              className={`h-2 w-2 rounded-full ${
+                isConnected ? 'bg-green-500' : 'bg-red-500'
+              }`}
+              title={isConnected ? 'Connected' : 'Disconnected'}
+            />
+          </div>
           <Button
             size='icon'
             variant='ghost'
@@ -39,14 +49,19 @@ export default function Sidebar({
         </div>
 
         {/* Search */}
-        <Input placeholder='Chats search...' className='bg-background' />
+        <Input placeholder='Search active users...' className='bg-background' />
       </div>
 
       {/* Conversations List */}
       <div className='overflow-y-auto flex-1'>
         {conversations.length === 0 ? (
           <div className='flex items-center justify-center p-8 text-muted-foreground'>
-            <p>No conversations yet</p>
+            <div className='text-center'>
+              <p>No other users online</p>
+              <p className='text-xs mt-1'>
+                Connection: {isConnected ? 'Connected' : 'Disconnected'}
+              </p>
+            </div>
           </div>
         ) : (
           conversations.map(conversation => (
