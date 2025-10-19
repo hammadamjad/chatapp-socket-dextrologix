@@ -3,22 +3,28 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { HiPlus } from 'react-icons/hi2';
-import { Conversation } from '@/types';
+import { HiLogout } from 'react-icons/hi';
+import { Conversation, SessionUser } from '@/types';
 import { RxAvatar } from 'react-icons/rx';
+import Image from 'next/image';
 
 interface ChatSidebarProps {
   conversations: Conversation[];
   selectedConversation: Conversation | null;
   onSelectConversation: (conversation: Conversation) => void;
+  user?: SessionUser;
+  onLogout?: () => void;
 }
 
 export default function Sidebar({
   conversations,
   selectedConversation,
   onSelectConversation,
+  user,
+  onLogout,
 }: ChatSidebarProps) {
   return (
-    <div className='w-80 border-r border-border bg-card'>
+    <div className='w-80 border-r border-border bg-card flex flex-col'>
       {/* Header */}
       <div className='border-b border-border p-4'>
         <div className='mb-4 flex items-center justify-between'>
@@ -37,7 +43,7 @@ export default function Sidebar({
       </div>
 
       {/* Conversations List */}
-      <div className='overflow-y-auto'>
+      <div className='overflow-y-auto flex-1'>
         {conversations.length === 0 ? (
           <div className='flex items-center justify-center p-8 text-muted-foreground'>
             <p>No conversations yet</p>
@@ -81,6 +87,44 @@ export default function Sidebar({
           ))
         )}
       </div>
+
+      {/* User Profile Section */}
+      {user && (
+        <div className='border-t border-border p-4 justify-end bg-amber-100'>
+          <div className='flex items-center gap-3'>
+            <div className='relative'>
+              {user.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name || 'User'}
+                  width={40}
+                  height={40}
+                  className='h-10 w-10 rounded-full object-cover'
+                />
+              ) : (
+                <RxAvatar className='h-10 w-10 rounded-full' />
+              )}
+            </div>
+            <div className='flex-1 min-w-0'>
+              <p className='font-semibold text-foreground truncate'>
+                {user.name || 'User'}
+              </p>
+              <p className='text-xs text-muted-foreground truncate'>
+                {user.email || 'No email'}
+              </p>
+            </div>
+            <Button
+              size='icon'
+              variant='ghost'
+              onClick={onLogout}
+              className='h-8 w-8 text-muted-foreground hover:text-foreground'
+              title='Logout'
+            >
+              <HiLogout className='h-4 w-4' />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

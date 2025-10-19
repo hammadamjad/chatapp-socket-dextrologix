@@ -1,3 +1,8 @@
+'use client';
+
+import { useState } from 'react';
+import { signIn, getSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,8 +19,60 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { LoginCredentials } from '@/types';
 
 export default function LoginPage() {
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: '',
+    password: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email: credentials.email,
+        password: credentials.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+      } else {
+        router.push('/chat-screen');
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signIn('google', { callbackUrl: '/chat-screen' });
+    } catch (error) {
+      setError('An error occurred with Google sign-in');
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className='flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
       <div className='w-full max-w-sm'>
@@ -28,14 +85,22 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form>
+              <form onSubmit={handleSubmit}>
                 <FieldGroup>
+                  {error && (
+                    <div className='text-red-500 text-sm text-center mb-4'>
+                      {error}
+                    </div>
+                  )}
                   <Field>
                     <FieldLabel htmlFor='email'>Email</FieldLabel>
                     <Input
                       id='email'
+                      name='email'
                       type='email'
                       placeholder='m@example.com'
+                      value={credentials.email}
+                      onChange={handleInputChange}
                       required
                     />
                   </Field>
@@ -49,11 +114,25 @@ export default function LoginPage() {
                         Forgot your password?
                       </a>
                     </div>
-                    <Input id='password' type='password' required />
+                    <Input
+                      id='password'
+                      name='password'
+                      type='password'
+                      value={credentials.password}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </Field>
                   <Field>
-                    <Button type='submit'>Login</Button>
-                    <Button variant='outline' type='button'>
+                    <Button type='submit' disabled={isLoading}>
+                      {isLoading ? 'Signing in...' : 'Login'}
+                    </Button>
+                    <Button
+                      variant='outline'
+                      type='button'
+                      onClick={handleGoogleSignIn}
+                      disabled={isLoading}
+                    >
                       Login with Google
                     </Button>
                     <FieldDescription className='text-center'>

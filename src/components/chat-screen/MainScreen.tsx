@@ -4,20 +4,24 @@ import { useState } from 'react';
 import ChatSidebar from '@/components/chat-screen/Sidebar';
 import ChatContainer from '@/components/chat-screen/ChatContainer';
 import CustomInput from '@/components/chat-screen/CustomInput';
-import { Conversation, Message, ChatUser } from '@/types';
+import { Conversation, Message, ChatUser, SessionUser } from '@/types';
 import ChatHeader from '@/components/chat-screen/Header';
 
 interface ChatScreenProps {
   conversations?: Conversation[];
   messages?: Message[];
   currentUser?: ChatUser;
+  user?: SessionUser;
   onSendMessage?: (message: string) => void;
+  onLogout?: () => void;
 }
 
 export default function ChatScreen({
   conversations = [],
   messages = [],
+  user,
   onSendMessage,
+  onLogout,
 }: ChatScreenProps) {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(conversations[0] || null);
@@ -48,6 +52,8 @@ export default function ChatScreen({
         conversations={conversations}
         selectedConversation={selectedConversation}
         onSelectConversation={setSelectedConversation}
+        user={user}
+        onLogout={onLogout}
       />
 
       {/* Main Chat Area */}
