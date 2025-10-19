@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { SignupCredentials, AuthResponse } from '@/types';
 
 export default function SignupPage() {
+  const { data: session, status } = useSession();
   const [credentials, setCredentials] = useState<SignupCredentials>({
     name: '',
     email: '',
@@ -31,6 +32,30 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/chat-screen');
+    }
+  }, [status, router]);
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className='flex min-h-svh w-full items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto'></div>
+          <p className='mt-2 text-gray-600'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if authenticated (will redirect)
+  if (status === 'authenticated') {
+    return null;
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
